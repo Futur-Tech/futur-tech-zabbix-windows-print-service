@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2021-09-12T12:15:24Z</date>
+    <date>2022-01-14T12:19:35Z</date>
     <groups>
         <group>
             <name>Templates/Futur-Tech/Modules Windows</name>
@@ -11,6 +11,7 @@
         <template>
             <template>Template Futur-Tech Module Windows print service</template>
             <name>Template Futur-Tech Module Windows print service</name>
+            <description>https://github.com/Futur-Tech/futur-tech-zabbix-windows-print-service</description>
             <groups>
                 <group>
                     <name>Templates/Futur-Tech/Modules Windows</name>
