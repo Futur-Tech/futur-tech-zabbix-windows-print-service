@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2022-04-05T15:52:06Z</date>
+    <date>2023-05-02T09:59:11Z</date>
     <groups>
         <group>
             <name>Templates/Futur-Tech/Modules Windows</name>
@@ -99,7 +99,7 @@
             <expression>{Template Futur-Tech Module Windows print service:vfs.dir.count[&quot;C:\WINDOWS\system32\spool\PRINTERS&quot;,\.SPL$,,file,,0,,,{$PRINTSERVICE.SPL.OLD}].last()}&gt;1 and {Template Futur-Tech Module Windows print service:vfs.dir.count[&quot;C:\WINDOWS\system32\spool\PRINTERS&quot;,\.SPL$,,file,,0].last()}&gt;0</expression>
             <name>Several print jobs are in queue for more than {$PRINTSERVICE.SPL.OLD}</name>
             <opdata>Spooler jobs: {ITEM.LASTVALUE1} old for {ITEM.LASTVALUE2} in total</opdata>
-            <priority>HIGH</priority>
+            <priority>AVERAGE</priority>
             <manual_close>YES</manual_close>
         </trigger>
     </triggers>
