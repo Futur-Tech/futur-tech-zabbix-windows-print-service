@@ -1,0 +1,72 @@
+zabbix_export:
+  version: '6.0'
+  date: '2023-08-03T18:22:18Z'
+  groups:
+    - uuid: 0c9841271ce24c7882314d02deb588c2
+      name: 'Templates/Futur-Tech/Modules Windows'
+  templates:
+    - uuid: 0c4be425e38c46419fef344642a3abfa
+      template: 'Futur-Tech Module Windows print service'
+      name: 'Futur-Tech Module Windows print service'
+      description: 'https://github.com/Futur-Tech/futur-tech-zabbix-windows-print-service'
+      groups:
+        - name: 'Templates/Futur-Tech/Modules Windows'
+      items:
+        - uuid: 36c4df9cbaf14bc187d8cc09dca78150
+          name: 'PrintService/Admin Event Log'
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Microsoft-Windows-PrintService/Admin,,,,,,skip]'
+          delay: 5m
+          trends: '0'
+          value_type: LOG
+          tags:
+            - tag: Application
+              value: 'Print Service'
+        - uuid: 65f34db6ccc14ceab07b5935b7ca7612
+          name: 'PrintService/Operational Event Log'
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Microsoft-Windows-PrintService/Operational,,,,,,skip]'
+          delay: 5m
+          trends: '0'
+          value_type: LOG
+          tags:
+            - tag: Application
+              value: 'Print Service'
+        - uuid: 8827b6ba4f8540dba6c4dc54efe67750
+          name: 'Number of spool files older than {$PRINTSERVICE.SPL.OLD}'
+          type: ZABBIX_ACTIVE
+          key: 'vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0,,,{$PRINTSERVICE.SPL.OLD}]'
+          delay: 5m
+          tags:
+            - tag: Application
+              value: 'Print Service'
+        - uuid: 03b13863c13f439783bd655ba764a61c
+          name: 'Number of spool files'
+          type: ZABBIX_ACTIVE
+          key: 'vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0]'
+          delay: 5m
+          tags:
+            - tag: Application
+              value: 'Print Service'
+      tags:
+        - tag: Futur-Tech
+      macros:
+        - macro: '{$PRINTSERVICE.SPL.OLD}'
+          value: 10m
+          description: 'Amount of time above which a spool file is consider old'
+  triggers:
+    - uuid: 8455643656474f8bbaf6081c97244623
+      expression: 'last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0,,,{$PRINTSERVICE.SPL.OLD}])=1 and last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0])>0'
+      name: 'One print job is in queue for more than {$PRINTSERVICE.SPL.OLD}'
+      opdata: 'Spooler jobs: {ITEM.LASTVALUE1} old for {ITEM.LASTVALUE2} in total'
+      priority: WARNING
+      manual_close: 'YES'
+      dependencies:
+        - name: 'Several print jobs are in queue for more than {$PRINTSERVICE.SPL.OLD}'
+          expression: 'last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0,,,{$PRINTSERVICE.SPL.OLD}])>1 and last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0])>0'
+    - uuid: c63d5b61340849ff96ccf840f9ee2eca
+      expression: 'last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0,,,{$PRINTSERVICE.SPL.OLD}])>1 and last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0])>0'
+      name: 'Several print jobs are in queue for more than {$PRINTSERVICE.SPL.OLD}'
+      opdata: 'Spooler jobs: {ITEM.LASTVALUE1} old for {ITEM.LASTVALUE2} in total'
+      priority: AVERAGE
+      manual_close: 'YES'
