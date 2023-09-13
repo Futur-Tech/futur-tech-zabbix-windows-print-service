@@ -1,6 +1,6 @@
 zabbix_export:
   version: '6.0'
-  date: '2023-08-03T18:22:18Z'
+  date: '2023-09-13T11:14:15Z'
   groups:
     - uuid: 0c9841271ce24c7882314d02deb588c2
       name: 'Templates/Futur-Tech/Modules Windows'
@@ -56,16 +56,16 @@ zabbix_export:
           description: 'Amount of time above which a spool file is consider old'
   triggers:
     - uuid: 8455643656474f8bbaf6081c97244623
-      expression: 'last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0,,,{$PRINTSERVICE.SPL.OLD}])=1 and last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0])>0'
+      expression: 'last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0,,,{$PRINTSERVICE.SPL.OLD}])=1 and last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0])>0 and nodata(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0],1d)=0'
       name: 'One print job is in queue for more than {$PRINTSERVICE.SPL.OLD}'
       opdata: 'Spooler jobs: {ITEM.LASTVALUE1} old for {ITEM.LASTVALUE2} in total'
       priority: WARNING
       manual_close: 'YES'
       dependencies:
         - name: 'Several print jobs are in queue for more than {$PRINTSERVICE.SPL.OLD}'
-          expression: 'last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0,,,{$PRINTSERVICE.SPL.OLD}])>1 and last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0])>0'
+          expression: 'last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0,,,{$PRINTSERVICE.SPL.OLD}])>1 and last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0])>0 and nodata(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0],1d)=0'
     - uuid: c63d5b61340849ff96ccf840f9ee2eca
-      expression: 'last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0,,,{$PRINTSERVICE.SPL.OLD}])>1 and last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0])>0'
+      expression: 'last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0,,,{$PRINTSERVICE.SPL.OLD}])>1 and last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0])>0 and nodata(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0],1d)=0'
       name: 'Several print jobs are in queue for more than {$PRINTSERVICE.SPL.OLD}'
       opdata: 'Spooler jobs: {ITEM.LASTVALUE1} old for {ITEM.LASTVALUE2} in total'
       priority: AVERAGE
