@@ -1,42 +1,156 @@
 zabbix_export:
-  version: '6.0'
-  date: '2023-09-13T11:14:15Z'
-  groups:
-    - uuid: 0c9841271ce24c7882314d02deb588c2
-      name: 'Templates/Futur-Tech/Modules Windows'
+  version: '7.0'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+    - uuid: a571c0d144b14fd4a87a9d9b2aa9fcd6
+      name: Templates/Applications
   templates:
     - uuid: 0c4be425e38c46419fef344642a3abfa
-      template: 'Futur-Tech Module Windows print service'
-      name: 'Futur-Tech Module Windows print service'
-      description: 'https://github.com/Futur-Tech/futur-tech-zabbix-windows-print-service'
+      template: 'APP-Print Server by Zabbix agent 2 active'
+      name: 'APP-Print Server by Zabbix agent 2 active'
+      description: |
+        https://github.com/Futur-Tech/futur-tech-zabbix-windows-print-service
+        
+        In order to gather the PrintService/Operational Event Log you need to enable the log in Windows Event Viewer
+        
+        For more data: https://www.papercut.com/kb/Main/LogPrintJobsInEventViewer#the-print-service-operational-log
+        
+        Adapted by MannixTT
+        - Disabled the use the whole Operational and Admin Log
+        - Small Dashboard regarding the Spooler
+        - Added some Event's that (might) occur on the print server
+        
+        Notice: If you want to monitor the whole printer related ID's you have to observe other hosts as well for example the Event ID 8192.
       groups:
-        - name: 'Templates/Futur-Tech/Modules Windows'
+        - name: Templates
+        - name: Templates/Applications
       items:
         - uuid: 36c4df9cbaf14bc187d8cc09dca78150
           name: 'PrintService/Admin Event Log'
           type: ZABBIX_ACTIVE
           key: 'eventlog[Microsoft-Windows-PrintService/Admin,,,,,,skip]'
-          delay: 5m
-          trends: '0'
+          delay: 30m
           value_type: LOG
+          status: DISABLED
           tags:
             - tag: Application
               value: 'Print Service'
+        - uuid: 8633a68410f34f98a8224685177b48fc
+          name: 'Failure during driver installation'
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Microsoft-Windows-PrintService/Admin,,,,215,,skip]'
+          delay: 10m
+          value_type: LOG
+          description: |
+            This event, found in the Admin log, is usually associated with print jobs that fail to print or “disappear”.
+            
+            We’ve seen a few different causes for this, for example, it can happen…
+            
+            When macOS computers print to Shared Windows queue which is configured to use Type-4 drivers.
+            In a Find-Me Printing scenario when the source and destination print queues are configured for different data types, as described in our article Troubleshooting Disappearing jobs with Find-Me Printing.
+          tags:
+            - tag: Application
+              value: 'Print Service'
+          triggers:
+            - uuid: 3967cb255220478db3805fd8ea60bfd5
+              expression: 'logeventid(/APP-Print Server by Zabbix agent 2 active/eventlog[Microsoft-Windows-PrintService/Admin,,,,215,,skip],,215)=1'
+              name: 'Failure during driver installation on {HOST.NAME}'
+              priority: AVERAGE
+              manual_close: 'YES'
+        - uuid: af49ccc1b8eb4dceaeb9244c19e9b2eb
+          name: 'Job rendering error'
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Microsoft-Windows-PrintService/Admin,,,,372,,skip]'
+          delay: 10m
+          value_type: LOG
+          description: |
+            This event, found in the Admin log, is usually associated with print jobs that fail to print or “disappear”.
+            
+            We’ve seen a few different causes for this, for example, it can happen…
+            
+            When macOS computers print to Shared Windows queue which is configured to use Type-4 drivers.
+            In a Find-Me Printing scenario when the source and destination print queues are configured for different data types, as described in our article Troubleshooting Disappearing jobs with Find-Me Printing.
+          tags:
+            - tag: Application
+              value: 'Print Service'
+          triggers:
+            - uuid: 46795c0e86b9442a8f9b9fb6b71abf2b
+              expression: 'logeventid(/APP-Print Server by Zabbix agent 2 active/eventlog[Microsoft-Windows-PrintService/Admin,,,,372,,skip],,372)=1'
+              name: 'Job rendering error occured on {HOST.NAME}'
+              priority: AVERAGE
+              manual_close: 'YES'
+        - uuid: bf5fab4a966f45c9b374fd75fa72c3c6
+          name: 'Spooler can''t load a module'
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Microsoft-Windows-PrintService/Admin,,,,808,,skip]'
+          delay: 10m
+          value_type: LOG
+          description: |
+            This event, found in the Admin log, is usually associated with print jobs that fail to print or “disappear”.
+            
+            We’ve seen a few different causes for this, for example, it can happen…
+            
+            When macOS computers print to Shared Windows queue which is configured to use Type-4 drivers.
+            In a Find-Me Printing scenario when the source and destination print queues are configured for different data types, as described in our article Troubleshooting Disappearing jobs with Find-Me Printing.
+          tags:
+            - tag: Application
+              value: 'Print Service'
+          triggers:
+            - uuid: 65753ef5dd99489187d70d742c596b86
+              expression: 'logeventid(/APP-Print Server by Zabbix agent 2 active/eventlog[Microsoft-Windows-PrintService/Admin,,,,808,,skip],,808)=1'
+              name: 'Spooler can''t load a module on {HOST.NAME}'
+              priority: AVERAGE
+              manual_close: 'YES'
         - uuid: 65f34db6ccc14ceab07b5935b7ca7612
           name: 'PrintService/Operational Event Log'
           type: ZABBIX_ACTIVE
           key: 'eventlog[Microsoft-Windows-PrintService/Operational,,,,,,skip]'
-          delay: 5m
-          trends: '0'
+          delay: 30m
+          value_type: LOG
+          status: DISABLED
+          tags:
+            - tag: Application
+              value: 'Print Service'
+        - uuid: 41a1087c7f5b4461a6bb39e6ed1ead55
+          name: 'PrintService/print queue stopped'
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Microsoft-Windows-PrintService/Operational,,,,303,,skip]'
+          delay: 10m
           value_type: LOG
           tags:
             - tag: Application
               value: 'Print Service'
+        - uuid: bf924628aeac4a328580672ba129faeb
+          name: 'PrintService/print queue released'
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Microsoft-Windows-PrintService/Operational,,,,304,,skip]'
+          delay: 10m
+          value_type: LOG
+          tags:
+            - tag: Application
+              value: 'Print Service'
+        - uuid: 772445f4b8b9444c901fc9023288c26f
+          name: 'The printer spooler failed to delete a file'
+          type: ZABBIX_ACTIVE
+          key: 'eventlog[Microsoft-Windows-PrintService/Operational,,,,812,,skip]'
+          delay: 10m
+          value_type: LOG
+          tags:
+            - tag: Application
+              value: 'Print Service'
+          triggers:
+            - uuid: b1f899722d534a62b8f33a9a305cbc94
+              expression: 'logeventid(/APP-Print Server by Zabbix agent 2 active/eventlog[Microsoft-Windows-PrintService/Operational,,,,812,,skip],,812)=1'
+              name: 'The printer spooler failed to delete a file on {HOST.NAME}'
+              priority: AVERAGE
+              description: 'The printer spooler failed to delete a file'
+              manual_close: 'YES'
         - uuid: 8827b6ba4f8540dba6c4dc54efe67750
           name: 'Number of spool files older than {$PRINTSERVICE.SPL.OLD}'
           type: ZABBIX_ACTIVE
           key: 'vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0,,,{$PRINTSERVICE.SPL.OLD}]'
-          delay: 5m
+          delay: 10m
           tags:
             - tag: Application
               value: 'Print Service'
@@ -44,29 +158,118 @@ zabbix_export:
           name: 'Number of spool files'
           type: ZABBIX_ACTIVE
           key: 'vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0]'
-          delay: 5m
+          delay: 10m
           tags:
             - tag: Application
               value: 'Print Service'
       tags:
-        - tag: Futur-Tech
+        - tag: class
+          value: software
+        - tag: target
+          value: 'print server'
       macros:
         - macro: '{$PRINTSERVICE.SPL.OLD}'
           value: 10m
           description: 'Amount of time above which a spool file is consider old'
+      dashboards:
+        - uuid: fb3b2cae1c3e425d82107ec669e45027
+          name: 'Print Server'
+          pages:
+            - widgets:
+                - type: item
+                  x: '1'
+                  width: '16'
+                  height: '4'
+                  fields:
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'APP-Print Server by Zabbix agent 2 active'
+                        key: 'vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0]'
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: show.2
+                      value: '4'
+                - type: itemhistory
+                  name: 'Admin Logs'
+                  x: '1'
+                  'y': '4'
+                  width: '26'
+                  height: '6'
+                  fields:
+                    - type: ITEM
+                      name: columns.0.itemid
+                      value:
+                        host: 'APP-Print Server by Zabbix agent 2 active'
+                        key: 'eventlog[Microsoft-Windows-PrintService/Admin,,,,,,skip]'
+                    - type: STRING
+                      name: columns.0.name
+                      value: 'APP-Print Service by Zabbix agent 2 active: PrintService/Admin Event Log'
+                    - type: STRING
+                      name: reference
+                      value: WEAVG
+                - type: svggraph
+                  name: 'Print jobs in spooler'
+                  x: '17'
+                  width: '36'
+                  height: '4'
+                  fields:
+                    - type: STRING
+                      name: ds.0.color
+                      value: FF465C
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: 'Number of spool files'
+                    - type: STRING
+                      name: reference
+                      value: CNOOK
+                    - type: INTEGER
+                      name: righty
+                      value: '0'
+                - type: itemhistory
+                  name: 'Operational Event Log'
+                  x: '27'
+                  'y': '4'
+                  width: '26'
+                  height: '6'
+                  fields:
+                    - type: ITEM
+                      name: columns.0.itemid
+                      value:
+                        host: 'APP-Print Server by Zabbix agent 2 active'
+                        key: 'eventlog[Microsoft-Windows-PrintService/Operational,,,,,,skip]'
+                    - type: STRING
+                      name: columns.0.name
+                      value: 'APP-Print Service by Zabbix agent 2 active: PrintService/Operational Event Log'
+                    - type: STRING
+                      name: reference
+                      value: DEYNV
   triggers:
     - uuid: 8455643656474f8bbaf6081c97244623
-      expression: 'last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0,,,{$PRINTSERVICE.SPL.OLD}])=1 and last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0])>0 and nodata(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0],1d)=0'
-      name: 'One print job is in queue for more than {$PRINTSERVICE.SPL.OLD}'
+      expression: 'last(/APP-Print Server by Zabbix agent 2 active/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0,,,{$PRINTSERVICE.SPL.OLD}])=1 and last(/APP-Print Server by Zabbix agent 2 active/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0])>0 and nodata(/APP-Print Server by Zabbix agent 2 active/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0],1d)=0'
+      name: 'One print job is in queue for more than {$PRINTSERVICE.SPL.OLD} on {HOST.NAME}'
       opdata: 'Spooler jobs: {ITEM.LASTVALUE1} old for {ITEM.LASTVALUE2} in total'
       priority: WARNING
       manual_close: 'YES'
       dependencies:
-        - name: 'Several print jobs are in queue for more than {$PRINTSERVICE.SPL.OLD}'
-          expression: 'last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0,,,{$PRINTSERVICE.SPL.OLD}])>1 and last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0])>0 and nodata(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0],1d)=0'
+        - name: 'Several print jobs are in queue for more than {$PRINTSERVICE.SPL.OLD} on {HOST.NAME}'
+          expression: 'last(/APP-Print Server by Zabbix agent 2 active/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0,,,{$PRINTSERVICE.SPL.OLD}])>1 and last(/APP-Print Server by Zabbix agent 2 active/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0])>0 and nodata(/APP-Print Server by Zabbix agent 2 active/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0],1d)=0'
+    - uuid: 54bae3ce0c074407b3aa884abf3f8fa2
+      expression: 'logeventid(/APP-Print Server by Zabbix agent 2 active/eventlog[Microsoft-Windows-PrintService/Operational,,,,303,,skip],,"303")=1'
+      recovery_mode: RECOVERY_EXPRESSION
+      recovery_expression: 'logeventid(/APP-Print Server by Zabbix agent 2 active/eventlog[Microsoft-Windows-PrintService/Operational,,,,304,,skip],,"304")=1'
+      name: 'One print queue is stopped on {HOST.NAME}'
+      priority: WARNING
+      description: 'Detects when a print queue is released'
+      manual_close: 'YES'
     - uuid: c63d5b61340849ff96ccf840f9ee2eca
-      expression: 'last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0,,,{$PRINTSERVICE.SPL.OLD}])>1 and last(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0])>0 and nodata(/Futur-Tech Module Windows print service/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0],1d)=0'
-      name: 'Several print jobs are in queue for more than {$PRINTSERVICE.SPL.OLD}'
+      expression: 'last(/APP-Print Server by Zabbix agent 2 active/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0,,,{$PRINTSERVICE.SPL.OLD}])>1 and last(/APP-Print Server by Zabbix agent 2 active/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0])>0 and nodata(/APP-Print Server by Zabbix agent 2 active/vfs.dir.count["C:\WINDOWS\system32\spool\PRINTERS",\.SPL$,,file,,0],1d)=0'
+      name: 'Several print jobs are in queue for more than {$PRINTSERVICE.SPL.OLD} on {HOST.NAME}'
       opdata: 'Spooler jobs: {ITEM.LASTVALUE1} old for {ITEM.LASTVALUE2} in total'
       priority: AVERAGE
       manual_close: 'YES'
